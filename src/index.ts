@@ -12,11 +12,11 @@ import type { SlashCommand } from "./types";
 import { join } from "path";
 import { readdirSync } from "fs";
 import dotenv from "dotenv";
+import express from "express";
+import { DISCORD_TOKEN, CLIENT_ID, GUILD_ID, CHANNEL_ID, ROLE_ID, PORT } from "./config";
 dotenv.config();
 import testCommand from "./slashCommands/ping";
 
-const token = process.env.DISCORD_TOKEN; // Token from Railway Env Variable.
-const client_id = process.env.CLIENT_ID;
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -33,8 +33,8 @@ const slashCommands = new Collection<string, SlashCommand>()
 slashCommands.set(testCommand.command.name, testCommand)
 const slashCommandsArr: SlashCommandBuilder[] = [testCommand.command]
 
-const rest = new REST({ version: "10" }).setToken(token);
-rest.put(Routes.applicationCommands(client_id), {
+const rest = new REST({ version: "10" }).setToken(DISCORD_TOKEN);
+rest.put(Routes.applicationCommands(CLIENT_ID), {
     body: slashCommandsArr.map(command => command.toJSON())
 }).then((data: any) => {
     console.log(`🔥 Successfully loaded ${data.length} slash command(s)`)
@@ -62,6 +62,29 @@ client.on(Events.InteractionCreate, async interaction => {
         }
     }
 });
+
+const app = express();
+app.use(express.json());
+
+app.post('/roblox-event', (req, res) => {
+    const data = req.body;
+    console.log('Received Roblox event:', data);
+
+    // Assuming the data has an 'event' field
+    if (data.event === 'certain_thing') {  // Replace 'certain_thing' with the actual event name
+        const channel = client.channels.cache.get(CHANNEL_ID);
+        if (channel && channel.isTextBased()) {
+            channel.send(`<@&${ROLE_ID}> Something happened in Roblox!`);
+        }
+    }
+
+    res.status(200).send('Event received');
+});
+
+app.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}`);
+});
+
 client
-    .login(token)
+    .login(DISCORD_TOKEN)
     .catch((error) => console.error("Discord.Client.Login.Error", error));
