@@ -70,7 +70,7 @@ app.post('/roblox-event', (req, res) => {
     const data = req.body;
     console.log('Received Roblox event:', data);
 
-    // Assuming the data has an 'event' field
+    // Assuming the data has an 'event' fie
     if (data.event === 'certain_thing') {  // Replace 'certain_thing' with the actual event name
         const channel = client.channels.cache.get(CHANNEL_ID);
         if (channel && channel.isTextBased()) {
