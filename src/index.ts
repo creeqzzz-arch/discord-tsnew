@@ -71,12 +71,21 @@ app.post('/roblox-event', (req, res) => {
     console.log('Received Roblox event:', data);
 
     // Assuming the data has an 'event' fie
-    if (data.event === 'certain_thing') {  // Replace 'certain_thing' with the actual event name
-        const channel = client.channels.cache.get(CHANNEL_ID);
-        if (channel && channel.isTextBased()) {
-            channel.send(`<@&${ROLE_ID}> Something happened in Roblox!`);
-        }
+    if (data.event === "help") {
+    const channel = client.channels.cache.get(CHANNEL_ID);
+
+    if (channel && channel.isTextBased()) {
+        const playerName = data.data?.player ?? "Unknown player";
+        const message = data.data?.message ?? "Needs help";
+
+        channel.send(
+            `<@&${ROLE_ID}> **Help request in Roblox**\n` +
+            `👤 Player: **${playerName}**\n` +
+            `💬 Message: ${message}`
+        );
     }
+}
+
 
     res.status(200).send('Event received');
 });
